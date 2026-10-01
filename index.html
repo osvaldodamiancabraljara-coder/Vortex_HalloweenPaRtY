@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Party Halloween Vortex - Registro & Administración</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- QRCode.js Library CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Google Fonts Creepster & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        spooky: ['Creepster', 'cursive'],
+                    },
+                    colors: {
+                        vortex: {
+                            bg: '#0B0813',
+                            card: '#161126',
+                            purple: '#8b5cf6',
+                            neon: '#00ff88',
+                            orange: '#f97316',
+                            magenta: '#d946ef'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0B0813;
+            color: #f1f5f9;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(0, 255, 136, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.08) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .spooky-title {
+            font-family: 'Creepster', cursive;
+            letter-spacing: 2px;
+        }
+
+        .neon-glow-purple {
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.6), 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .neon-glow-green {
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.7), 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .neon-box {
+            box-shadow: 0 0 20px -5px rgba(139, 92, 246, 0.3);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .neon-box-green {
+            box-shadow: 0 0 20px -5px rgba(0, 255, 136, 0.25);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #161126;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #8b5cf6;
+            border-radius: 4px;
+        }
+
+        #qrcode img {
+            margin: 0 auto;
+            border-radius: 0.75rem;
+            padding: 8px;
+            background: #ffffff;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col justify-between selection:bg-vortex-purple selection:text-white">
+
+    <div>
+        <!-- Navbar Header -->
+        <header class="bg-vortex-card/90 backdrop-blur-md border-b border-purple-900/40 sticky top-0 z-30 shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-20 items-center">
+                    
+                    <!-- Logo / Event Branding -->
+                    <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('public')">
+                        <div class="p-3 bg-gradient-to-tr from-purple-700 via-fuchsia-600 to-vortex-orange text-white rounded-2xl shadow-lg border border-purple-400/30">
+                            <i data-lucide="skull" class="w-7 h-7 animate-pulse text-vortex-neon"></i>
+                        </div>
+                        <div>
+                            <h1 class="spooky-title text-2xl sm:text-3xl font-normal text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-vortex-neon neon-glow-purple">
+                                Party Halloween Vortex
+                            </h1>
+                            <p class="text-xs text-vortex-neon/80 font-semibold tracking-wider flex items-center gap-1">
+                                <i data-lucide="sparkles" class="w-3 h-3"></i> REGISTRO EXCLUSIVO
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Tabs & Actions -->
+                    <div class="flex items-center space-x-2 sm:space-x-3">
+                        <nav id="main-nav" class="flex space-x-1 bg-black/40 p-1.5 rounded-2xl border border-purple-900/50">
+                            <button id="tab-public" onclick="switchTab('public')" class="flex items-center space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-200 text-purple-300 hover:text-white">
+                                <i data-lucide="user-plus" class="w-4 h-4 text-vortex-orange"></i>
+                                <span>Anotarse</span>
+                            </button>
+
+                            <button id="tab-admin" onclick="switchTab('admin')" class="flex items-center space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-200 text-purple-300 hover:text-white">
+                                <i data-lucide="lock" id="nav-lock-icon" class="w-4 h-4 text-vortex-neon"></i>
+                                <span>Panel Admin</span>
+                            </button>
+                        </nav>
+
+                        <!-- Lock/Logout button (Visible when admin is unlocked) -->
+                        <button id="btn-admin-logout" onclick="lockAdminSession()" class="hidden flex items-center space-x-2 px-3 sm:px-4 py-2.5 bg-rose-950/80 hover:bg-rose-900 text-rose-300 font-bold text-xs sm:text-sm rounded-xl border border-rose-500/40 shadow-lg transition-all active:scale-95">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">Cerrar Sesión</span>
+                        </button>
+
+                        <!-- Share QR Button -->
+                        <button onclick="openQRModal()" class="flex items-center space-x-2 px-3.5 sm:px-4 py-2.5 bg-gradient-to-r from-vortex-purple to-fuchsia-600 hover:from-purple-600 hover:to-fuchsia-500 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-lg transition-all active:scale-95 border border-purple-400/30">
+                            <i data-lucide="qr-code" class="w-4 h-4"></i>
+                            <span class="hidden md:inline">Compartir QR</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- PUBLIC VIEW (Default for all guests) -->
+            <section id="view-public" class="max-w-2xl mx-auto">
+                <div class="bg-vortex-card rounded-2xl border border-purple-900/60 shadow-2xl p-6 sm:p-8 neon-box">
+                    <div class="flex items-center space-x-4 mb-6 pb-5 border-b border-purple-900/40">
+                        <div class="p-3 bg-gradient-to-tr from-purple-900 to-vortex-orange text-vortex-neon rounded-2xl shadow-md border border-purple-500/30">
+                            <i data-lucide="ghost" class="w-7 h-7"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-white spooky-title">
+                                🎃 Anótate a Party Halloween Vortex
+                            </h2>
+                            <p class="text-xs text-purple-300">Completa tus datos para confirmar tu asistencia a la fiesta.</p>
+                        </div>
+                    </div>
+
+                    <form id="public-guest-form" onsubmit="handlePublicFormSubmit(event)" class="space-y-5">
+                        <!-- Nombre Completo -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-purple-300 mb-2" for="public-name">
+                                Nombre y Apellido *
+                            </label>
+                            <div class="relative">
+                                <i data-lucide="user" class="w-5 h-5 absolute left-3.5 top-1/2 transform -translate-y-1/2 text-purple-400"></i>
+                                <input type="text" id="public-name" required placeholder="Ej. Alex Vance" class="w-full pl-10 pr-4 py-3 bg-black/60 border border-purple-900/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-vortex-neon text-sm text-white placeholder-purple-300/40">
+                            </div>
+                        </div>
+
+                        <!-- Disfraz / Personaje -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-vortex-neon mb-2 flex items-center gap-1.5" for="public-costume">
+                                <i data-lucide="wand-2" class="w-4 h-4"></i> ¿De qué irás disfrazado/a?
+                            </label>
+                            <div class="relative">
+                                <i data-lucide="sparkles" class="w-5 h-5 absolute left-3.5 top-1/2 transform -translate-y-1/2 text-purple-400"></i>
+                                <input type="text" id="public-costume" placeholder="Ej. Cyber Vampiro, Merlina, Zombie Neón..." class="w-full pl-10 pr-4 py-3 bg-black/60 border border-purple-900/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-vortex-neon text-sm text-white placeholder-purple-300/40">
+                            </div>
+                        </div>
+
+                        <!-- Contacto -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-purple-300 mb-2" for="public-phone">
+                                Teléfono / WhatsApp *
+                            </label>
+                            <div class="relative">
+                                <i data-lucide="phone" class="w-5 h-5 absolute left-3.5 top-1/2 transform -translate-y-1/2 text-purple-400"></i>
+                                <input type="text" id="public-phone" required placeholder="Ej. +54 9 11 1234 5678" class="w-full pl-10 pr-4 py-3 bg-black/60 border border-purple-900/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-vortex-neon text-sm text-white placeholder-purple-300/40">
+                            </div>
+                        </div>
+
+                        <!-- Acompañantes -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-purple-300 mb-2" for="public-companions">
+                                Acompañantes adicionales
+                            </label>
+                            <div class="relative">
+                                <i data-lucide="users" class="w-5 h-5 absolute left-3.5 top-1/2 transform -translate-y-1/2 text-purple-400"></i>
+                                <input type="number" id="public-companions" min="0" max="10" value="0" class="w-full pl-10 pr-4 py-3 bg-black/60 border border-purple-900/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-vortex-neon text-sm text-white">
+                            </div>
+                            <span class="text-[11px] text-purple-300/60 mt-1 block">Deja en 0 si asistes solo/a.</span>
+                        </div>
+
+                        <!-- Notas adicionales -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-purple-300 mb-2" for="public-notes">
+                                Mensaje o nota adicional
+                            </label>
+                            <textarea id="public-notes" rows="2" placeholder="Ej. Llego a las 23hs, restricción alimentaria..." class="w-full px-4 py-3 bg-black/60 border border-purple-900/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-vortex-neon text-sm text-white placeholder-purple-300/40 resize-none"></textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-4">
+                            <button type="submit" class="w-full py-4 bg-gradient-to-r from-vortex-purple via-fuchsia-600 to-vortex-orange hover:from-purple-500 hover:to-orange-500 text-white font-extrabold text-base rounded-xl shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-purple-300/30">
+                                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                                <span>¡Confirmar mi Asistencia!</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- ADMIN LOGIN PROMPT (Shown when Admin tab is clicked but not authenticated) -->
+            <section id="view-admin-login" class="hidden max-w-md mx-auto">
+                <div class="bg-vortex-card rounded-2xl border border-purple-600/50 shadow-2xl p-6 sm:p-8 neon-box text-center space-y-6">
+                    <div class="w-16 h-16 bg-purple-950/80 text-vortex-neon rounded-full flex items-center justify-center mx-auto border border-purple-500/40 shadow-lg">
+                        <i data-lucide="shield-lock" class="w-8 h-8 animate-pulse"></i>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-2xl font-extrabold text-white spooky-title">Panel Administrador Protegido</h3>
+                        <p class="text-xs text-purple-300/80">Solo el organizador puede ingresar a la lista de invitados. Ingresa el PIN o Clave de acceso.</p>
+                    </div>
+
+                    <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                        <div>
+                            <input type="password" id="admin-passcode" placeholder="Clave de Admin (Default: 1234)" required class="w-full text-center tracking-widest text-lg py-3 px-4 bg-black/70 border border-purple-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-vortex-neon text-white placeholder-purple-400/40">
+                        </div>
+
+                        <button type="submit" class="w-full py-3 bg-vortex-neon hover:bg-emerald-400 text-slate-950 font-extrabold text-sm rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center space-x-2">
+                            <i data-lucide="key-round" class="w-4 h-4"></i>
+                            <span>Desbloquear Panel</span>
+                        </button>
+                    </form>
+
+                    <div class="pt-2 border-t border-purple-900/40 text-left">
+                        <button onclick="fillDemoPin()" class="text-[11px] text-vortex-orange hover:underline flex items-center gap-1 mx-auto">
+                            <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+                            <span>¿Eres el organizador? Usar clave por defecto (1234)</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ADMIN DASHBOARD VIEW (Only visible after PIN entry) -->
+            <section id="view-admin" class="hidden space-y-6">
+                <!-- Admin Header Banner -->
+                <div class="p-4 rounded-2xl bg-gradient-to-r from-purple-950 via-black to-purple-950 border border-purple-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 bg-vortex-neon text-slate-950 rounded-xl font-bold text-xs">ADMIN</div>
+                        <div>
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <span>Lista Privada de Asistentes</span>
+                                <span class="text-xs text-vortex-neon font-normal bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-500/30">Oculto al público</span>
+                            </h2>
+                            <p class="text-xs text-purple-300">Tienes el control total de la lista de Party Halloween Vortex.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeAdminPin()" class="px-3 py-1.5 bg-black/60 hover:bg-purple-900/40 text-purple-300 text-xs font-semibold rounded-lg border border-purple-800 transition-all flex items-center gap-1.5">
+                            <i data-lucide="key" class="w-3.5 h-3.5"></i>
+                            <span>Cambiar Clave</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Summary Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                    <div class="bg-vortex-card p-5 rounded-2xl border border-purple-900/40 shadow-xl neon-box">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-purple-300">Registros Totales</span>
+                            <div class="p-2 bg-purple-900/50 text-vortex-neon rounded-xl border border-purple-500/20">
+                                <i data-lucide="ticket" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <span id="stat-total-records" class="text-3xl font-extrabold text-white">0</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-vortex-card p-5 rounded-2xl border border-purple-900/40 shadow-xl neon-box-green">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-vortex-neon">Asistentes Totales</span>
+                            <div class="p-2 bg-emerald-950/60 text-vortex-neon rounded-xl border border-emerald-500/20">
+                                <i data-lucide="users" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <span id="stat-total-people" class="text-3xl font-extrabold text-vortex-neon neon-glow-green">0</span>
+                            <span class="text-xs text-slate-400 block mt-1">(Titulares + Acompañantes)</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-vortex-card p-5 rounded-2xl border border-purple-900/40 shadow-xl">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-purple-300">Confirmados</span>
+                            <div class="p-2 bg-fuchsia-950/50 text-fuchsia-400 rounded-xl border border-fuchsia-500/20">
+                                <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <span id="stat-confirmed" class="text-3xl font-extrabold text-white">0</span>
+                            <span id="stat-confirmed-people" class="text-xs text-fuchsia-400 block mt-1 font-medium">0 personas</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-vortex-card p-5 rounded-2xl border border-purple-900/40 shadow-xl">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-vortex-orange">Pendientes / Cancelados</span>
+                            <div class="p-2 bg-orange-950/50 text-vortex-orange rounded-xl border border-orange-500/20">
+                                <i data-lucide="clock" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <span id="stat-pending" class="text-3xl font-extrabold text-white">0</span>
+                            <span id="stat-cancelled" class="text-xs text-rose-400 block mt-1 font-medium">0 cancelados</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters and Table Controls -->
+                <div class="bg-vortex-card p-4 sm:p-5 rounded-2xl border border-purple-900/40 shadow-xl space-y-4">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <!-- Search Bar -->
+                        <div class="relative flex-1">
+                            <i data-lucide="search" class="w-5 h-5 absolute left-3.5 top-1/2 transform -translate-y-1/2 text-purple-400"></i>
+                            <input type="text" id="search-input" oninput="renderGuestList()" placeholder="Buscar invitado, teléfono o disfraz..." class="w-full pl-10 pr-4 py-2.5 bg-black/50 border border-purple-900/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-vortex-neon focus:border-vortex-neon text-sm text-white placeholder-purple-300/50 transition-all">
+                        </div>
+
+                        <!-- Actions & Filters -->
+                        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <!-- Status Filters -->
+                            <div class="flex bg-black/40 p-1 rounded-xl border border-purple-900/50 text-xs sm:text-sm font-medium text-purple-300">
+                                <button onclick="setFilter('ALL')" id="filter-ALL" class="px-3 py-1.5 rounded-lg transition-all">Todos</button>
+                                <button onclick="setFilter('CONFIRMED')" id="filter-CONFIRMED" class="px-3 py-1.5 rounded-lg transition-all">Confirmados</button>
+                                <button onclick="setFilter('PENDING')" id="filter-PENDING" class="px-3 py-1.5 rounded-lg transition-all">Pendientes</button>
+                                <button onclick="setFilter('CANCELLED')" id="filter-CANCELLED" class="px-3 py-1.5 rounded-lg transition-all">Cancelados</button>
+                            </div>
+
+                            <!-- Export CSV Button -->
+                            <button onclick="exportToCSV()" class="flex items-center space-x-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold rounded-xl text-sm transition-all shadow-md active:scale-95 border border-emerald-400/40">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                                <span>Exportar CSV</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guest Table -->
+                <div class="bg-vortex-card rounded-2xl border border-purple-900/40 shadow-2xl overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse min-w-[750px]">
+                            <thead>
+                                <tr class="bg-black/60 border-b border-purple-900/50 text-xs font-semibold uppercase tracking-wider text-purple-300">
+                                    <th class="py-4 px-4 sm:px-6">Invitado</th>
+                                    <th class="py-4 px-4 sm:px-6">Disfraz / Personaje</th>
+                                    <th class="py-4 px-4 sm:px-6">Teléfono</th>
+                                    <th class="py-4 px-4 sm:px-6 text-center">Acompañantes</th>
+                                    <th class="py-4 px-4 sm:px-6 text-center">Total Pers.</th>
+                                    <th class="py-4 px-4 sm:px-6">Estado</th>
+                                    <th class="py-4 px-4 sm:px-6 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="guest-table-body" class="divide-y divide-purple-900/30 text-sm">
+                                <!-- Dynamic Render -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div id="empty-state" class="hidden py-16 text-center space-y-3">
+                        <div class="w-16 h-16 bg-purple-950/60 text-vortex-purple rounded-full flex items-center justify-center mx-auto border border-purple-700/40">
+                            <i data-lucide="ghost" class="w-8 h-8 text-vortex-orange animate-bounce"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">No hay anotados en esta categoría</h3>
+                        <p class="text-sm text-purple-300/70 max-w-sm mx-auto">Prueba cambiando los filtros o esperando a que más invitados escaneen el QR.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- SHARE / QR MODAL -->
+    <div id="qr-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-vortex-card w-full max-w-md rounded-2xl shadow-2xl border border-purple-600/40 overflow-hidden transform transition-all neon-box">
+            <div class="px-6 py-4 bg-black/50 border-b border-purple-900/50 flex items-center justify-between">
+                <h3 class="font-bold text-white flex items-center space-x-2 spooky-title text-xl">
+                    <i data-lucide="qr-code" class="w-5 h-5 text-vortex-neon"></i>
+                    <span>QR - Party Halloween Vortex</span>
+                </h3>
+                <button onclick="closeQRModal()" class="text-purple-400 hover:text-white rounded-lg p-1 hover:bg-purple-900/40 transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 text-center space-y-5">
+                <div class="space-y-1">
+                    <h4 class="spooky-title text-2xl text-vortex-orange">¡Escanea para Anotarte!</h4>
+                    <p class="text-xs text-purple-200/80">
+                        Los invitados que escaneen este código irán directo al formulario. <strong>No podrán ver la lista ni la administración.</strong>
+                    </p>
+                </div>
+
+                <!-- QR Graphic Card Container -->
+                <div class="p-5 bg-gradient-to-b from-purple-950 to-black border border-purple-500/40 rounded-2xl inline-block shadow-2xl relative">
+                    <div id="qrcode" class="flex justify-center items-center"></div>
+                    <span class="text-[10px] uppercase font-bold tracking-widest text-vortex-neon block mt-3">
+                        🎃 VORTEX HALLOWEEN 🎃
+                    </span>
+                </div>
+
+                <!-- Link Custom input -->
+                <div class="text-left space-y-1.5">
+                    <label class="block text-xs font-semibold uppercase text-purple-300" for="qr-url-input">Enlace Directo</label>
+                    <div class="flex rounded-xl shadow-sm">
+                        <input type="text" id="qr-url-input" class="flex-1 min-w-0 pl-3 pr-2 py-2.5 bg-black/60 border border-purple-900/60 rounded-l-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-vortex-neon" oninput="updateQR()">
+                        <button onclick="copyLinkToClipboard()" class="px-4 py-2.5 bg-vortex-purple hover:bg-purple-600 text-white font-bold text-xs rounded-r-xl transition-all flex items-center space-x-1">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Copiar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="pt-2">
+                    <button onclick="downloadQRCode()" class="w-full py-3 px-3 bg-vortex-neon hover:bg-emerald-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 active:scale-95">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Descargar PNG del QR</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT GUEST MODAL -->
+    <div id="edit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-vortex-card w-full max-w-lg rounded-2xl shadow-2xl border border-purple-600/50 overflow-hidden transform transition-all">
+            <div class="px-6 py-4 bg-black/50 border-b border-purple-900/50 flex items-center justify-between">
+                <h3 class="font-bold text-white flex items-center space-x-2">
+                    <i data-lucide="edit-3" class="w-5 h-5 text-vortex-orange"></i>
+                    <span>Editar Invitado</span>
+                </h3>
+                <button onclick="closeEditModal()" class="text-purple-400 hover:text-white rounded-lg p-1 hover:bg-purple-900/40">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="edit-form" onsubmit="handleEditSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" id="edit-id">
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-purple-300 mb-1">Nombre Completo</label>
+                    <input type="text" id="edit-name" required class="w-full px-3.5 py-2.5 bg-black/60 border border-purple-900/60 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-vortex-neon">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-vortex-neon mb-1">Disfraz / Personaje</label>
+                    <input type="text" id="edit-costume" class="w-full px-3.5 py-2.5 bg-black/60 border border-purple-900/60 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-vortex-neon">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-purple-300 mb-1">Teléfono / Contacto</label>
+                    <input type="text" id="edit-phone" class="w-full px-3.5 py-2.5 bg-black/60 border border-purple-900/60 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-vortex-neon">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-purple-300 mb-1">Acompañantes</label>
+                        <input type="number" id="edit-companions" min="0" max="20" required class="w-full px-3.5 py-2.5 bg-black/60 border border-purple-900/60 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-vortex-neon">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-purple-300 mb-1">Estado</label>
+                        <select id="edit-status" required class="w-full px-3.5 py-2.5 bg-black/60 border border-purple-900/60 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-vortex-neon">
+                            <option value="CONFIRMED">🎃 Confirmado</option>
+                            <option value="PENDING">⏳ Pendiente</option>
+                            <option value="CANCELLED">❌ Cancelado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-purple-300 mb-1">Notas especiales</label>
+                    <textarea id="edit-notes" rows="2" class="w-full px-3.5 py-2.5 bg-black/60 border border-purple-900/60 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-vortex-neon resize-none"></textarea>
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2">
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 text-xs font-semibold text-purple-300 hover:text-white">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-vortex-purple hover:bg-purple-600 text-white font-semibold text-xs rounded-xl shadow-md">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden transform transition-all duration-300 translate-y-10 opacity-0">
+        <div class="bg-vortex-card text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center space-x-3 border border-purple-500/50 neon-box">
+            <div id="toast-icon" class="text-vortex-neon">
+                <i data-lucide="ghost" class="w-5 h-5"></i>
+            </div>
+            <span id="toast-message" class="text-sm font-semibold">Notificación de Party Halloween Vortex</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-black/60 border-t border-purple-900/40 py-5 text-center text-xs text-purple-300/60 mt-12">
+        <p class="spooky-title text-base text-purple-300">Party Halloween Vortex</p>
+        <p class="text-[11px] mt-1">Lista Oficial & Acceso VIP © 2026</p>
+    </footer>
+
+    <script>
+        const STORAGE_KEY = 'vortex_halloween_guests_v3';
+        const PIN_KEY = 'vortex_admin_pin_code';
+        const AUTH_SESSION_KEY = 'vortex_admin_authenticated';
+
+        let guests = [];
+        let currentFilter = 'ALL';
+        let isAdminLoggedIn = false;
+        let qrCodeObj = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadGuests();
+            checkAdminSession();
+            switchTab('public');
+            lucide.createIcons();
+        });
+
+        // Load & Save Data
+        function loadGuests() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    guests = JSON.parse(stored);
+                } catch (e) {
+                    guests = getMockData();
+                }
+            } else {
+                guests = getMockData();
+                saveGuests();
+            }
+        }
+
+        function saveGuests() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(guests));
+            if (isAdminLoggedIn) {
+                renderGuestList();
+                updateStats();
+            }
+        }
+
+        function getMockData() {
+            return [
+                { id: '1', name: 'Valeria S.', costume: 'Vampira Neón', phone: '+54 9 11 4433 2211', companions: 1, status: 'CONFIRMED', notes: 'Llega 23:30 hs' },
+                { id: '2', name: 'Mateo Rossi', costume: 'Cyber Ghost', phone: '+54 9 11 5566 7788', companions: 2, status: 'CONFIRMED', notes: '' },
+                { id: '3', name: 'Camila Torres', costume: 'Zombie Pop Art', phone: '+54 9 11 9900 1122', companions: 0, status: 'PENDING', notes: '' }
+            ];
+        }
+
+        // Admin Security & Session Management
+        function getStoredPin() {
+            return localStorage.getItem(PIN_KEY) || '1234';
+        }
+
+        function checkAdminSession() {
+            isAdminLoggedIn = localStorage.getItem(AUTH_SESSION_KEY) === 'true';
+            updateAdminUIState();
+        }
+
+        function updateAdminUIState() {
+            const logoutBtn = document.getElementById('btn-admin-logout');
+            const lockIcon = document.getElementById('nav-lock-icon');
+
+            if (isAdminLoggedIn) {
+                logoutBtn.classList.remove('hidden');
+                lockIcon.setAttribute('data-lucide', 'unlock');
+            } else {
+                logoutBtn.classList.add('hidden');
+                lockIcon.setAttribute('data-lucide', 'lock');
+            }
+            lucide.createIcons();
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const entered = document.getElementById('admin-passcode').value.trim();
+            const currentPin = getStoredPin();
+
+            if (entered === currentPin) {
+                isAdminLoggedIn = true;
+                localStorage.setItem(AUTH_SESSION_KEY, 'true');
+                updateAdminUIState();
+                
+                document.getElementById('view-admin-login').classList.add('hidden');
+                document.getElementById('view-admin').classList.remove('hidden');
+                
+                renderGuestList();
+                updateStats();
+                showToast('🔓 Panel de administración desbloqueado');
+            } else {
+                showToast('❌ Clave o PIN incorrecto');
+                document.getElementById('admin-passcode').value = '';
+            }
+        }
+
+        function fillDemoPin() {
+            document.getElementById('admin-passcode').value = getStoredPin();
+            showToast('Clave ingresada. Haz clic en Desbloquear.');
+        }
+
+        function lockAdminSession() {
+            isAdminLoggedIn = false;
+            localStorage.setItem(AUTH_SESSION_KEY, 'false');
+            updateAdminUIState();
+            switchTab('public');
+            showToast('🔒 Sesión de Administrador cerrada');
+        }
+
+        function changeAdminPin() {
+            const current = getStoredPin();
+            const input = prompt("Ingresa la clave actual:");
+            if (input !== current) {
+                alert("Clave incorrecta.");
+                return;
+            }
+            const newPin = prompt("Ingresa tu NUEVA clave o PIN:");
+            if (newPin && newPin.trim().length > 0) {
+                localStorage.setItem(PIN_KEY, newPin.trim());
+                alert("¡Clave actualizada correctamente!");
+                showToast("Clave de Admin actualizada");
+            }
+        }
+
+        // Navigation Tabs
+        function switchTab(tab) {
+            const publicView = document.getElementById('view-public');
+            const adminLoginView = document.getElementById('view-admin-login');
+            const adminView = document.getElementById('view-admin');
+
+            const tabPublicBtn = document.getElementById('tab-public');
+            const tabAdminBtn = document.getElementById('tab-admin');
+
+            if (tab === 'public') {
+                publicView.classList.remove('hidden');
+                adminLoginView.classList.add('hidden');
+                adminView.classList.add('hidden');
+
+                tabPublicBtn.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl bg-gradient-to-r from-purple-700 to-vortex-purple text-white shadow-md";
+                tabAdminBtn.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl text-purple-300 hover:text-white";
+            } else {
+                publicView.classList.add('hidden');
+
+                tabAdminBtn.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl bg-gradient-to-r from-purple-700 to-vortex-purple text-white shadow-md";
+                tabPublicBtn.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl text-purple-300 hover:text-white";
+
+                if (isAdminLoggedIn) {
+                    adminLoginView.classList.add('hidden');
+                    adminView.classList.remove('hidden');
+                    renderGuestList();
+                    updateStats();
+                } else {
+                    adminView.classList.add('hidden');
+                    adminLoginView.classList.remove('hidden');
+                }
+            }
+            lucide.createIcons();
+        }
+
+        // Public Form Handler
+        function handlePublicFormSubmit(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('public-name').value.trim();
+            const costume = document.getElementById('public-costume').value.trim();
+            const phone = document.getElementById('public-phone').value.trim();
+            const companions = parseInt(document.getElementById('public-companions').value) || 0;
+            const notes = document.getElementById('public-notes').value.trim();
+
+            if (!name || !phone) return;
+
+            const newGuest = {
+                id: Date.now().toString(),
+                name,
+                costume,
+                phone,
+                companions,
+                status: 'CONFIRMED',
+                notes
+            };
+
+            guests.unshift(newGuest);
+            saveGuests();
+
+            document.getElementById('public-guest-form').reset();
+            document.getElementById('public-companions').value = '0';
+
+            alert(`🎃 ¡Genial, ${name}! Tu asistencia a Party Halloween Vortex ha sido registrada con éxito.`);
+            showToast('¡Registro completado!');
+        }
+
+        // QR Code Generator
+        function openQRModal() {
+            const modal = document.getElementById('qr-modal');
+            const input = document.getElementById('qr-url-input');
+            
+            const baseUrl = window.location.href.split('#')[0];
+            input.value = baseUrl;
+            modal.classList.remove('hidden');
+
+            setTimeout(() => {
+                generateQRCode(baseUrl);
+            }, 50);
+        }
+
+        function closeQRModal() {
+            document.getElementById('qr-modal').classList.add('hidden');
+        }
+
+        function generateQRCode(text) {
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+
+            qrCodeObj = new QRCode(qrContainer, {
+                text: text,
+                width: 180,
+                height: 180,
+                colorDark : "#0b0813",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        function updateQR() {
+            const text = document.getElementById('qr-url-input').value.trim();
+            if (text) generateQRCode(text);
+        }
+
+        function copyLinkToClipboard() {
+            const input = document.getElementById('qr-url-input');
+            input.select();
+            document.execCommand('copy');
+            showToast('¡Enlace de invitación copiado!');
+        }
+
+        function downloadQRCode() {
+            const img = document.getElementById('qrcode').querySelector('img');
+            if (img && img.src) {
+                const link = document.createElement('a');
+                link.href = img.src;
+                link.download = `Party_Halloween_Vortex_QR.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast('Descargando código QR...');
+            }
+        }
+
+        // Admin Filter & Render Logic
+        function setFilter(filter) {
+            currentFilter = filter;
+            ['ALL', 'CONFIRMED', 'PENDING', 'CANCELLED'].forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if (f === filter) {
+                    btn.className = "px-3 py-1.5 rounded-lg transition-all bg-vortex-purple text-white shadow-sm font-bold";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg transition-all hover:text-white text-purple-300";
+                }
+            });
+            renderGuestList();
+        }
+
+        function renderGuestList() {
+            if (!isAdminLoggedIn) return;
+
+            const tbody = document.getElementById('guest-table-body');
+            const emptyState = document.getElementById('empty-state');
+            const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+
+            tbody.innerHTML = '';
+
+            const filtered = guests.filter(guest => {
+                const matchesFilter = currentFilter === 'ALL' || guest.status === currentFilter;
+                const matchesSearch = guest.name.toLowerCase().includes(searchQuery) || 
+                                      (guest.costume && guest.costume.toLowerCase().includes(searchQuery)) ||
+                                      (guest.phone && guest.phone.toLowerCase().includes(searchQuery)) ||
+                                      (guest.notes && guest.notes.toLowerCase().includes(searchQuery));
+                return matchesFilter && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                filtered.forEach(guest => {
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-purple-950/40 transition-colors";
+
+                    const companionCount = parseInt(guest.companions || 0);
+                    const totalPeople = 1 + companionCount;
+
+                    row.innerHTML = `
+                        <td class="py-4 px-4 sm:px-6 font-semibold text-white">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-purple-900/60 text-vortex-neon border border-purple-500/30 flex items-center justify-center font-extrabold text-xs">
+                                    ${guest.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <span>${escapeHtml(guest.name)}</span>
+                                    ${guest.notes ? `<p class="text-[11px] text-purple-300/60 italic font-normal">${escapeHtml(guest.notes)}</p>` : ''}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-4 sm:px-6 text-vortex-neon font-medium text-xs sm:text-sm">
+                            ${guest.costume ? `🎭 ${escapeHtml(guest.costume)}` : '<span class="text-purple-400/40">Sin disfraz</span>'}
+                        </td>
+                        <td class="py-4 px-4 sm:px-6 text-purple-200/80 text-xs sm:text-sm">
+                            ${guest.phone ? escapeHtml(guest.phone) : '<span class="text-purple-400/30">-</span>'}
+                        </td>
+                        <td class="py-4 px-4 sm:px-6 text-center text-purple-200 font-bold">
+                            ${companionCount > 0 ? `+${companionCount}` : '0'}
+                        </td>
+                        <td class="py-4 px-4 sm:px-6 text-center font-extrabold text-vortex-neon">
+                            ${totalPeople}
+                        </td>
+                        <td class="py-4 px-4 sm:px-6">
+                            ${getStatusBadge(guest.status, guest.id)}
+                        </td>
+                        <td class="py-4 px-4 sm:px-6 text-right space-x-1">
+                            <button onclick="openEditModal('${guest.id}')" class="p-2 text-purple-300 hover:text-vortex-neon hover:bg-purple-900/50 rounded-lg transition-all" title="Editar">
+                                <i data-lucide="edit-2" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteGuest('${guest.id}')" class="p-2 text-purple-300 hover:text-rose-400 hover:bg-rose-950/50 rounded-lg transition-all" title="Eliminar">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+            lucide.createIcons();
+        }
+
+        function getStatusBadge(status, guestId) {
+            switch(status) {
+                case 'CONFIRMED':
+                    return `
+                        <button onclick="quickToggleStatus('${guestId}')" class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-950/80 text-vortex-neon border border-emerald-500/40 hover:bg-emerald-900 transition-all">
+                            <span class="w-2 h-2 rounded-full bg-vortex-neon animate-pulse"></span>
+                            <span>Confirmado</span>
+                        </button>
+                    `;
+                case 'PENDING':
+                    return `
+                        <button onclick="quickToggleStatus('${guestId}')" class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-950/80 text-vortex-orange border border-amber-500/40 hover:bg-amber-900 transition-all">
+                            <span class="w-2 h-2 rounded-full bg-vortex-orange"></span>
+                            <span>Pendiente</span>
+                        </button>
+                    `;
+                case 'CANCELLED':
+                    return `
+                        <button onclick="quickToggleStatus('${guestId}')" class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-950/80 text-rose-400 border border-rose-500/40 hover:bg-rose-900 transition-all">
+                            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                            <span>Cancelado</span>
+                        </button>
+                    `;
+            }
+        }
+
+        function quickToggleStatus(id) {
+            const guest = guests.find(g => g.id === id);
+            if (!guest) return;
+
+            if (guest.status === 'PENDING') guest.status = 'CONFIRMED';
+            else if (guest.status === 'CONFIRMED') guest.status = 'CANCELLED';
+            else guest.status = 'PENDING';
+
+            saveGuests();
+            showToast(`Estado cambiado para ${guest.name}`);
+        }
+
+        function updateStats() {
+            if (!isAdminLoggedIn) return;
+
+            const totalRecords = guests.length;
+            let totalPeople = 0;
+            let confirmedRecords = 0;
+            let confirmedPeople = 0;
+            let pendingRecords = 0;
+            let cancelledRecords = 0;
+
+            guests.forEach(g => {
+                const count = 1 + parseInt(g.companions || 0);
+                totalPeople += count;
+
+                if (g.status === 'CONFIRMED') {
+                    confirmedRecords++;
+                    confirmedPeople += count;
+                } else if (g.status === 'PENDING') {
+                    pendingRecords++;
+                } else if (g.status === 'CANCELLED') {
+                    cancelledRecords++;
+                }
+            });
+
+            document.getElementById('stat-total-records').textContent = totalRecords;
+            document.getElementById('stat-total-people').textContent = totalPeople;
+            document.getElementById('stat-confirmed').textContent = confirmedRecords;
+            document.getElementById('stat-confirmed-people').textContent = `${confirmedPeople} personas confirmadas`;
+            document.getElementById('stat-pending').textContent = pendingRecords;
+            document.getElementById('stat-cancelled').textContent = `${cancelledRecords} cancelados`;
+        }
+
+        // Delete & Edit Operations
+        function deleteGuest(id) {
+            const guest = guests.find(g => g.id === id);
+            if (!guest) return;
+
+            if (window.confirm(`¿Deseas eliminar a "${guest.name}" de la lista?`)) {
+                guests = guests.filter(g => g.id !== id);
+                saveGuests();
+                showToast('Invitado eliminado');
+            }
+        }
+
+        function openEditModal(id) {
+            const guest = guests.find(g => g.id === id);
+            if (!guest) return;
+
+            document.getElementById('edit-id').value = guest.id;
+            document.getElementById('edit-name').value = guest.name;
+            document.getElementById('edit-costume').value = guest.costume || '';
+            document.getElementById('edit-phone').value = guest.phone || '';
+            document.getElementById('edit-companions').value = guest.companions || 0;
+            document.getElementById('edit-status').value = guest.status;
+            document.getElementById('edit-notes').value = guest.notes || '';
+
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        function handleEditSubmit(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('edit-id').value;
+            const guest = guests.find(g => g.id === id);
+            if (!guest) return;
+
+            guest.name = document.getElementById('edit-name').value.trim();
+            guest.costume = document.getElementById('edit-costume').value.trim();
+            guest.phone = document.getElementById('edit-phone').value.trim();
+            guest.companions = parseInt(document.getElementById('edit-companions').value) || 0;
+            guest.status = document.getElementById('edit-status').value;
+            guest.notes = document.getElementById('edit-notes').value.trim();
+
+            saveGuests();
+            closeEditModal();
+            showToast('Invitado editado correctamente');
+        }
+
+        // CSV Export
+        function exportToCSV() {
+            if (guests.length === 0) {
+                showToast('No hay invitados para exportar');
+                return;
+            }
+
+            let csvContent = "\uFEFF";
+            csvContent += "Nombre Completo;Disfraz/Personaje;Telefono/Contacto;Acompanantes;Total Personas;Estado;Notas\n";
+
+            guests.forEach(g => {
+                const companionCount = parseInt(g.companions || 0);
+                const totalPeople = 1 + companionCount;
+                
+                let statusStr = "Pendiente";
+                if (g.status === 'CONFIRMED') statusStr = "Confirmado";
+                if (g.status === 'CANCELLED') statusStr = "Cancelado";
+
+                const row = [
+                    `"${(g.name || '').replace(/"/g, '""')}"`,
+                    `"${(g.costume || '').replace(/"/g, '""')}"`,
+                    `"${(g.phone || '').replace(/"/g, '""')}"`,
+                    companionCount,
+                    totalPeople,
+                    `"${statusStr}"`,
+                    `"${(g.notes || '').replace(/"/g, '""')}"`
+                ];
+                csvContent += row.join(";") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Party_Halloween_Vortex_Invitados_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast('Lista exportada a CSV');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const msgSpan = document.getElementById('toast-message');
+
+            msgSpan.textContent = message;
+            toast.classList.remove('hidden');
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>
